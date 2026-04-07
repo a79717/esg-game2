@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <title>聯小利 ESG 綠動力 - 進階穿搭版</title>
+    <style>
+        body { font-family: "Microsoft JhengHei", sans-serif; background: #eef2f5; display: flex; justify-content: center; padding: 20px; }
+        .phone-mockup { width: 375px; height: 812px; background: white; border: 12px solid #2c3e50; border-radius: 45px; position: relative; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 20px 50px rgba(0,0,0,0.2); }
+        
+        .header { background: #fff; padding: 20px 15px; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 12px; }
+        .points-val { color: #f39c12; font-weight: bold; font-size: 18px; }
+
+        /* 舞台區 */
+        .stage { flex: 1; background: linear-gradient(180deg, #94b9ff 0%, #ffffff 100%); position: relative; display: flex; justify-content: center; align-items: flex-end; padding-bottom: 20px; }
+        .avatar-img { height: 450px; transition: opacity 0.2s; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.1)); }
+        
+        .gender-switch { position: absolute; top: 15px; right: 15px; display: flex; gap: 5px; }
+        .btn-sm { padding: 4px 10px; font-size: 11px; border: 1px solid #4a90e2; border-radius: 5px; cursor: pointer; background: white; }
+        .btn-sm.active { background: #4a90e2; color: white; }
+
+        /* 內容區 */
+        .content-area { height: 260px; overflow-y: auto; padding: 15px; background: #fff; border-top-left-radius: 25px; border-top-right-radius: 25px; box-shadow: 0 -5px 15px rgba(0,0,0,0.05); }
+        .card { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #f8f9fa; margin-bottom: 10px; border-radius: 12px; }
+        
+        .btn-action { background: #4a90e2; color: white; border: none; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 13px; }
+        .btn-off { background: #e74c3c; } /* 脫下按鈕 */
+
+        .nav-tabs { display: flex; background: #fff; border-top: 1px solid #eee; padding: 10px 0; }
+        .nav-tabs button { flex: 1; border: none; background: none; color: #7f8c8d; font-size: 12px; cursor: pointer; }
+        .nav-tabs button.active { color: #4a90e2; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="phone-mockup">
+    <div class="header">
+        <div style="width:45px; height:45px; background:#ccc; border-radius:50%;"></div>
+        <div>
+            <div style="font-weight:bold; font-size:16px;">聯小利</div>
+            <div style="font-size:11px; color:#7f8c8d;">Lv.99 神之減塑美食家</div>
+        </div>
+        <div style="margin-left:auto; text-align:right;">
+            <div class="points-val" id="totalPoints">20,260,407</div>
+            <div style="font-size:10px; color:#bdc3c7;">ID:00114514(員編)</div>
+        </div>
+    </div>
+
+    <div class="stage">
+        <div class="gender-switch">
+            <button id="btnMale" class="btn-sm active" onclick="setGender('A')">男</button>
+            <button id="btnFemale" class="btn-sm" onclick="setGender('B')">女</button>
+        </div>
+        <img id="mainAvatar" src="A1.png" class="avatar-img">
+    </div>
+
+    <div id="viewArea" class="content-area"></div>
+
+    <div class="nav-tabs">
+        <button id="tabTask" class="active" onclick="showTab('task')">每日ESG</button>
+        <button id="tabShop" onclick="showTab('shop')">ESG小舖</button>
+        <button onclick="alert('排行榜：積極參與各項ESG活動以提升排名！')">排行榜</button>
+    </div>
+</div>
+
+<script>
+    let points = 20260407;
+    let currentGender = 'A'; 
+    let inventory = { hat: false, jacket: false };
+    let equipped = { hat: false, jacket: false };
+
+    // 穿搭邏輯矩陣
+    // 無=1, 帽=2, 外套=3, 帽+外套=4
+    function updateAvatar() {
+        let suffix = "1";
+        if (equipped.hat && equipped.jacket) suffix = "1-4";
+        else if (equipped.jacket) suffix = "1-3";
+        else if (equipped.hat) suffix = "1-2";
+        
+        document.getElementById('mainAvatar').src = `${currentGender}${suffix}.png`;
+    }
+
+    function setGender(g) {
+        currentGender = g;
+        document.getElementById('btnMale').classList.toggle('active', g === 'A');
+        document.getElementById('btnFemale').classList.toggle('active', g === 'B');
+        updateAvatar();
+    }
+
+    function toggleEquip(part) {
+        equipped[part] = !equipped[part];
+        updateAvatar();
+        showTab('shop');
+    }
+
+    function buyItem(part, name, price) {
+        if (points >= price) {
+            points -= price;
+            inventory[part] = true;
+            equipped[part] = true;
+            document.getElementById('totalPoints').innerText = points.toLocaleString();
+            updateAvatar();
+            showTab('shop');
+            alert(`成功兌換並穿上 ${name}！`);
+        } else {
+            alert("積分不足！");
+        }
+    }
+
+    function showTab(tab) {
+        const view = document.getElementById('viewArea');
+        document.getElementById('tabTask').className = (tab === 'task' ? 'active' : '');
+        document.getElementById('tabShop').className = (tab === 'shop' ? 'active' : '');
+
+        if (tab === 'task') {
+            view.innerHTML = `
+                <h4 style="margin-top:0;">每日 ESG 任務</h4>
+                <div class="card"><span>使用環保餐具 (+500)</span><button class="btn-action" onclick="addPoints(500)">完成</button></div>
+                <div class="card"><span>走樓梯上下樓 (+100)</span><button class="btn-action" onclick="addPoints(100)">完成</button></div>
+            `;
+        } else {
+            view.innerHTML = `
+                <h4 style="margin-top:0;">ESG 小舖</h4>
+                <div class="card">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <img src="C1.png" style="width:40px;">
+                        <div><div style="font-size:13px; font-weight:bold;">TVBS 鴨舌帽</div><div style="font-size:11px; color:#f39c12;">15,000 pts</div></div>
+                    </div>
+                    ${!inventory.hat ? 
+                        `<button class="btn-action" onclick="buyItem('hat','鴨舌帽',15000)">兌換</button>` :
+                        `<button class="btn-action ${equipped.hat ? 'btn-off' : ''}" onclick="toggleEquip('hat')">${equipped.hat ? '脫下' : '穿上'}</button>`
+                    }
+                </div>
+                <div class="card">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <img src="C2.png" style="width:40px;">
+                        <div><div style="font-size:13px; font-weight:bold;">TVBS 棒球外套</div><div style="font-size:11px; color:#f39c12;">30,000 pts</div></div>
+                    </div>
+                    ${!inventory.jacket ? 
+                        `<button class="btn-action" onclick="buyItem('jacket','棒球外套',30000)">兌換</button>` :
+                        `<button class="btn-action ${equipped.jacket ? 'btn-off' : ''}" onclick="toggleEquip('jacket')">${equipped.jacket ? '脫下' : '穿上'}</button>`
+                    }
+                </div>
+            `;
+        }
+    }
+
+    function addPoints(amt) {
+        points += amt;
+        document.getElementById('totalPoints').innerText = points.toLocaleString();
+    }
+
+    showTab('task');
+</script>
+
+</body>
+</html>
